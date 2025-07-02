@@ -65,6 +65,8 @@ FallbackDNS=1.0.0.1
 DNSOverTLS=yes
 ## To restore the original DNS settings:
 
-
-sudo cp /etc/systemd/resolved.conf.backup /etc/systemd/resolved.conf
+```bash
+sudo cp /etc/systemd/resolved.conf.backup 
+/etc/systemd/resolved.conf
 sudo systemctl restart systemd-resolved
+```

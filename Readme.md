@@ -72,4 +72,9 @@ DNSOverTLS=yes
 ```bash
 sudo cp /etc/systemd/resolved.conf.backup /etc/systemd/resolved.conf
 sudo systemctl restart systemd-resolved
+
+
+
+
+
 ```

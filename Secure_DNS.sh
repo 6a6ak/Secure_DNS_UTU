@@ -70,3 +70,10 @@ echo "✅ Configuration applied. Current DNS status:"
 resolvectl status | grep "DNS"
 
 echo "🎉 Your DNS traffic is now encrypted using DNS-over-TLS."
+
+# Changes are already active because we restarted systemd-resolved above.
+# A reboot is NOT required, but is recommended to clear DNS caches and make
+# sure every running application re-syncs with the new resolver.
+echo "ℹ️  Changes are active right now — no reboot required."
+echo "   To clear DNS caches and ensure all apps pick up the new DNS, you can optionally reboot:"
+echo "      sudo reboot"

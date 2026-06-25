@@ -50,11 +50,10 @@ Using DNS-over-TLS solves these problems by encrypting DNS traffic between your 
 ### Download the script
 
 ```bash
+chmod +x Secure_DNS.sh
 
-chmod +x secure-dns.sh
 
-
-sudo ./secure-dns.sh
+sudo ./Secure_DNS.sh
 
 resolvectl status
 ```
@@ -66,7 +65,6 @@ DNSOverTLS=yes
 ## To restore the original DNS settings:
 
 ```bash
-sudo cp /etc/systemd/resolved.conf.backup 
-/etc/systemd/resolved.conf
+sudo cp /etc/systemd/resolved.conf.backup /etc/systemd/resolved.conf
 sudo systemctl restart systemd-resolved
 ```

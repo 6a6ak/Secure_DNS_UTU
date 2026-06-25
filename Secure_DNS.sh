@@ -1,15 +1,44 @@
 #!/bin/bash
 
+# Fail fast on errors, undefined variables, and pipe failures
+set -euo pipefail
+
 # Check if the script is run as root
 if [[ $EUID -ne 0 ]]; then
   echo "⚠️  Please run this script with sudo."
   exit 1
 fi
 
+# Verify that systemd-resolved exists and is active
+if ! systemctl list-unit-files | grep -q "systemd-resolved"; then
+  echo "❌ systemd-resolved is not installed on this system."
+  echo "   Install it first:  sudo apt install systemd-resolved"
+  exit 1
+fi
+
+if ! systemctl is-active --quiet systemd-resolved; then
+  echo "⚠️  systemd-resolved is not running. Attempting to start it..."
+  systemctl start systemd-resolved || {
+    echo "❌ Failed to start systemd-resolved."
+    exit 1
+  }
+fi
+
 echo "🔧 Enabling DNS over TLS using Cloudflare DNS..."
 
 # Backup the existing resolved.conf file
-cp /etc/systemd/resolved.conf /etc/systemd/resolved.conf.backup
+# Only take a backup if one doesn't already exist, so re-running the script
+# never overwrites the original saved configuration.
+BACKUP="/etc/systemd/resolved.conf.backup"
+if [[ ! -f "$BACKUP" ]]; then
+  cp /etc/systemd/resolved.conf "$BACKUP" || {
+    echo "❌ Failed to create backup of resolved.conf. Aborting to keep your config safe."
+    exit 1
+  }
+  echo "📁 Original configuration backed up to $BACKUP"
+else
+  echo "📁 Backup already exists at $BACKUP — keeping the original."
+fi
 
 # Write new configuration for systemd-resolved
 cat << EOF > /etc/systemd/resolved.conf
@@ -21,7 +50,12 @@ EOF
 
 # Restart systemd-resolved service to apply changes
 echo "🔄 Restarting systemd-resolved..."
-systemctl restart systemd-resolved
+systemctl restart systemd-resolved || {
+  echo "❌ Failed to restart systemd-resolved."
+  echo "   Restore your original config with:"
+  echo "   sudo cp $BACKUP /etc/systemd/resolved.conf && sudo systemctl restart systemd-resolved"
+  exit 1
+}
 
 # Show current DNS configuration
 echo "✅ Configuration applied. Current DNS status:"

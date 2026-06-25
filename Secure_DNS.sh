@@ -24,6 +24,14 @@ if ! systemctl is-active --quiet systemd-resolved; then
   }
 fi
 
+# Make sure systemd-resolved is enabled so the config survives reboots
+if ! systemctl is-enabled --quiet systemd-resolved; then
+  systemctl enable systemd-resolved || {
+    echo "⚠️  Could not enable systemd-resolved for boot. You may need to run:"
+    echo "   sudo systemctl enable systemd-resolved"
+  }
+fi
+
 echo "🔧 Enabling DNS over TLS using Cloudflare DNS..."
 
 # Backup the existing resolved.conf file
